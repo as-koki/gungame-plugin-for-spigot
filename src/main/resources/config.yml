@@ -1,0 +1,48 @@
+equipment:
+  - name: "AK-47"
+    price: 4750
+  - name: "M4A1"
+    price: 4750
+
+kit:
+  a:
+    main: "AK-47"
+    sub: "DEAGLE"
+    head: ""
+    chest: ""
+    leg: ""
+    foot: ""
+    item0: ""
+    item1: ""
+
+gamelist:
+  Dust2:
+    gamemode: 'Bomb'
+    matchpoint: 3
+    ff: 'false'
+    roundtime: 300
+    planttime: 10
+    defusetime: 10
+    exploretime: 60
+
+    spawnpointA: # xyz
+      - 0
+      - 0
+      - 0
+    spawnpointB:
+      - 1
+      - 1
+      - 1
+    bombsiteA:
+      - 0
+      - 0
+      - 0
+    bombsiteB:
+      - 1
+      - 1
+      - 1
+
+  Inferno:
+  Mirage:
+  Overpass:
+  Vertigo:
