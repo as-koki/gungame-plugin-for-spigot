@@ -19,6 +19,7 @@ public class Gteam {
     this.name = name;
     this.color = color;
     this.spawn = spawn;
+    this.players = new ArrayList<Player>();
     Team team = null;
     if (Plugin.board.getTeam(name) == null) {
       team = Plugin.board.registerNewTeam(name);
@@ -57,6 +58,15 @@ public class Gteam {
       }
     }
   }
+
+  public static Team getTeam(String name) {
+    for (Team team : teams) {
+        if (team.getName().equalsIgnoreCase(name)) {
+            return team;
+        }
+    }
+    return null;
+}
 
   public void teleport() {
     for (Player player : this.players) {

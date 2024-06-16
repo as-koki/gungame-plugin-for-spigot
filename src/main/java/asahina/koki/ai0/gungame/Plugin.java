@@ -1,5 +1,8 @@
 package asahina.koki.ai0.gungame;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
@@ -36,9 +39,7 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
   public void onDisable()
   {
     LOGGER.info("gungame disabled");
-
   }
-  
   
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -48,7 +49,15 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
           return true;
         }  
         else {
-          if (args[0].equalsIgnoreCase("team")) {
+          if (args[0].equalsIgnoreCase("bomb")) {
+            Bomb bomb1 = new Bomb("test");
+            Bukkit.getPluginManager().registerEvents(bomb1, this);
+            Player player = (Player)sender;
+            bomb1.addPlayer(player);
+            bomb1.start();
+            return true;
+          }
+          else if (args[0].equalsIgnoreCase("team")) {
             if (args.length < 2) {
               sender.sendMessage("team <create/add/remove/bots> <player/num bots>");
               return true;
