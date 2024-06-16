@@ -41,4 +41,28 @@ public class Gteam {
   public void checkteam(Player player) {
     player.sendMessage("あなたのチームは" + Plugin.board.getTeam(this.name).getName() + "です。");
   }
+
+  public Location getSpawn() {
+    return this.spawn;
+  }
+
+  public List<Player> getPlayers() {
+    return this.players;
+  }
+
+  public void sendTeamMessage(String msg) {
+    for(Player player : this.players) {
+      if (player.isOnline()) {
+        player.sendMessage(msg);
+      }
+    }
+  }
+
+  public void teleport() {
+    for (Player player : this.players) {
+      player.getInventory().clear();
+      player.setExp(0.0F);
+      player.teleport(this.spawn);
+    }
+  }
 }

@@ -39,6 +39,7 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
 
   }
   
+  
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
       if (command.getName().equalsIgnoreCase("gg")) { //親コマンドの判定
