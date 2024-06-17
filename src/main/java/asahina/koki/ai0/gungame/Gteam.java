@@ -47,6 +47,10 @@ public class Gteam {
     return this.spawn;
   }
 
+  public String getColor() {
+    return this.color;
+  }
+
   public List<Player> getPlayers() {
     return this.players;
   }
@@ -57,6 +61,15 @@ public class Gteam {
         player.sendMessage(msg);
       }
     }
+  }
+
+  public boolean hasPlayer(Player player) {
+    for (Player p : players) {
+      if (p == player) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static Team getTeam(String name) {
