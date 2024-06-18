@@ -15,6 +15,7 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.Location;
 import com.shampaggon.crackshot.CSUtility;
 import org.bukkit.command.Command;
+import java.util.ArrayList;
 
 /*
  * gungame java plugin
@@ -24,16 +25,15 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
   private static final Logger LOGGER=Logger.getLogger("gungame");
   public ScoreboardManager manager;
   public static Scoreboard board;
-  public Gteam team1;
   CSUtility cs = new CSUtility();
-
-
-
+  BombGameManager games;
   public void onEnable()
   {
     getCommand("gg").setExecutor(this);
     manager = Bukkit.getScoreboardManager();
     board = manager.getNewScoreboard();
+    games = new BombGameManager();
+    // Bukkit.getPluginManager().registerEvents(bomb, this);
   }
 
   public void onDisable()
@@ -51,41 +51,53 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
         else {
           if (args[0].equalsIgnoreCase("bomb")) {
             if (args[1].equalsIgnoreCase("create")) {
-              Bomb bomb1 = new Bomb(args[2]);
-              Bukkit.getPluginManager().registerEvents(bomb1, this);
-              return true;
+              if (games.createGame(args[2])) {
+                sender.sendMessage("爆破ゲームを作成しました!");
+                return true;
+              }
+              else {
+                sender.sendMessage("爆破ゲームの作成に失敗しました");
+                return true;
+              }
             }
-            if (args[1].equalsIgnoreCase("join")) {
-              Bomb game = Bomb.getBomb(args[2]); // name of game
-              if (game == null) {
+            if (args[1].equalsIgnoreCase("join")) { 
+              if (!games.hasGame(args[2])) {// name of game
                 sender.sendMessage("そのゲームは存在しません");
                 return true;
               }
               Player player = Bukkit.getServer().getPlayer(args[3]); // name of player who join
-              game.addPlayer(player, args[4]); // terrorist: "terro", counter terrorist: dont care
+              if (games.getBomb(args[2]).addPlayer(player, args[4])){ // terrorist: "t", counter terrorist: "ct", random: null
+                sender.sendMessage(player.getName() + "がゲームに追加されました");
+                return true;
+              }
+              else {
+                sender.sendMessage("プレイヤ―の追加に失敗しました");
+              }
               return true;
             }
             else if (args[1].equalsIgnoreCase("leave")) {
-              Bomb game = Bomb.getBomb(args[2]); // name of game
-              if (game == null) {
+              if (!games.hasGame(args[2])) {// name of game
                 sender.sendMessage("そのゲームは存在しません");
                 return true;
               }
               Player player = Bukkit.getServer().getPlayer(args[3]); // name of player who join
-              game.removePlayer(player, args[4]); // terrorist: "terro", counter terrorist: dont care
+              games.getBomb(args[2]).removePlayer(player, args[4]); // terrorist: "terro", counter terrorist: dont care
               return true;
             }
             else if (args[1].equalsIgnoreCase("start")) {
-              Bomb game = Bomb.getBomb(args[2]);
-              if (game == null) {
+              if (!games.hasGame(args[2])) {// name of game
                 sender.sendMessage("そのゲームは存在しません");
                 return true;
               }
-              game.start();
+              games.getBomb(args[2]).start();
               return true;
-
             }
-            return true;
+            else if (args[1].equalsIgnoreCase("list")) {
+              ArrayList<String> bombs = games.gameList();
+              for (String a : bombs) {
+                sender.sendMessage(a);
+              }
+            }
           }
 
         }

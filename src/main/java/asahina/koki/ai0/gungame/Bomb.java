@@ -33,11 +33,9 @@ public class Bomb implements Listener {
     // Location bombA = new Location(Bukkit.getWorld("world"), 1, 1, 1, 0, 0); // tmp  2地点で設定
     // Location bombB = new Location(Bukkit.getWorld("world"), 1, 1, 1, 0, 0); // tmp  2地点で設定
 
-    private Gteam t = new Gteam("テロリスト", "§c", false, location_t);
-    private Gteam ct = new Gteam("カウンターテロリスト", "§1", false, location_ct);
-    public static List<Bomb> bombs = new ArrayList<Bomb>(); 
+    private Gteam t;
+    private Gteam ct;
     private String name;
-    private int matches;
     private boolean ff;
     private int planttime;
     private int defusetime;
@@ -49,7 +47,6 @@ public class Bomb implements Listener {
 
     public Bomb(String name) {
         this.name = name;
-        this.matches = 15; // tmp
         this.ff = false;
         this.planttime = 3; // tmp
         this.defusetime = 10; // tmp
@@ -57,37 +54,11 @@ public class Bomb implements Listener {
         this.status = 0; // 0: prepare, 1: ingame 2: end
         this.bombstatus = 0; // 0: nonplanted 1: planted, 2: explored 3: defused
         this.gametime = 115;
-        this.inGamePlayers = new ArrayList<Player>();
-        // if (hasGame(this.name)) {
-        //     return false;
-        // }
-        bombs.add(this);
-        // return true;
+        this.inGamePlayers = new ArrayList<>();
+        this.t = new Gteam(name +"テロリスト", "§c", false, location_t);
+        this.ct = new Gteam(name +"カウンターテロリスト", "§1", false, location_ct);
     }
 
-    public boolean addPlayer(Player player, String team) { 
-        if (team == "t") {
-            this.t.addPlayer(player);
-            this.inGamePlayers.add(player);
-            return true;
-        }
-        else if (team == "ct") {
-            this.ct.addPlayer(player);
-            this.inGamePlayers.add(player);
-            return true;
-        }
-        return false;
-
-    }
-
-    public boolean removePlayer(Player player, String team) {
-        if (this.hasPlayer(player)) {
-            this.t.removePlayer(player);
-            this.inGamePlayers.remove(player);
-            return true;
-        }
-        return false;
-    }
     public void gameTimer() {
         new BukkitRunnable() {
             int time = gametime;
@@ -222,8 +193,43 @@ public class Bomb implements Listener {
         ct.sendTeamMessage(ct.getColor() + str);
     }
 
+    public boolean addPlayer(Player player, String team) { 
+        if (!hasPlayer(player)) {
+            if (team.equals("t")) {
+                t.addPlayer(player);
+                inGamePlayers.add(player);
+                return true;
+            }
+            else if (team.equals("ct")) {
+                ct.addPlayer(player);
+                inGamePlayers.add(player);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    public boolean removePlayer(Player player, String team) {
+        if (hasPlayer(player)) {
+            if (team == "t") {
+                this.t.removePlayer(player);
+                this.inGamePlayers.remove(player);
+                return true;
+            }
+            else if (team == "ct") {
+                this.ct.removePlayer(player);
+                this.inGamePlayers.remove(player);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public boolean inGame(Player player) {
@@ -231,15 +237,6 @@ public class Bomb implements Listener {
             return true;
         }
         return false;
-    }
-
-    public static Bomb getBomb(String str) {
-        for (Bomb bomb : bombs) {
-            if (bomb.getName().equalsIgnoreCase(str)) {
-                return bomb;
-            }
-        }
-        return null;
     }
 
     public boolean hasPlayer (Player player) {
@@ -251,14 +248,8 @@ public class Bomb implements Listener {
         return false;
     }
 
-    public boolean hasGame (String str) {
-        for (Bomb bomb : bombs) {
-            if (bomb.name == str) {
-                return true;
-            }
-            return false;
-        }
-        return false;
+    public Bomb getBomb(String str) {
+        return this;
     }
 
     public void end() {

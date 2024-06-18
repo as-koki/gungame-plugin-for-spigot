@@ -3,6 +3,9 @@ package asahina.koki.ai0.gungame;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.RenderType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.Location;
@@ -14,6 +17,7 @@ public class Gteam {
     private Location spawn;
     private List<Player> players;
     public static List<Team> teams = new ArrayList<Team>(); 
+    // Objective objective = Plugin.board.registerNewObjective(name, "air", "aaa", RenderType.INTEGER);
 
   public Gteam(String name, String color, boolean ff, Location spawn) {
     this.name = name;
@@ -32,6 +36,7 @@ public class Gteam {
   public void addPlayer(Player player) {
     this.players.add(player);
     Plugin.board.getTeam(this.name).addEntry(player.getName());
+
   }
 
   public void removePlayer(Player player) {
@@ -79,7 +84,7 @@ public class Gteam {
         }
     }
     return null;
-}
+  }
 
   public void teleport() {
     for (Player player : this.players) {
