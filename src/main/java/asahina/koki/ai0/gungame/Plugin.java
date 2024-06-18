@@ -27,13 +27,13 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
   public static Scoreboard board;
   CSUtility cs = new CSUtility();
   BombGameManager games;
+  
   public void onEnable()
   {
     getCommand("gg").setExecutor(this);
     manager = Bukkit.getScoreboardManager();
     board = manager.getNewScoreboard();
     games = new BombGameManager();
-    // Bukkit.getPluginManager().registerEvents(bomb, this);
   }
 
   public void onDisable()
@@ -53,6 +53,7 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
             if (args[1].equalsIgnoreCase("create")) {
               if (games.createGame(args[2])) {
                 sender.sendMessage("爆破ゲームを作成しました!");
+                this.getServer().getPluginManager().registerEvents(games.getBomb(args[2]), this);
                 return true;
               }
               else {

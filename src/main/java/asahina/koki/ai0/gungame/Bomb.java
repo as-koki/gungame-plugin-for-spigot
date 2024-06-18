@@ -45,6 +45,9 @@ public class Bomb implements Listener {
     private int gametime;
     private List<Player> inGamePlayers;
 
+    public Bomb() {
+    }
+
     public Bomb(String name) {
         this.name = name;
         this.ff = false;
@@ -77,36 +80,39 @@ public class Bomb implements Listener {
     }
 
     public void start() {
-        sendGameMessage("まもなくゲームが開始されます");
-        
-        new BukkitRunnable() {
-            int countdown = 5;
-
-            @Override
-            public void run() {
-                if (countdown > 0) {
-                    sendGameMessage(String.valueOf(countdown));
-                    playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
-                    countdown --;
-                }
-                else {
-                    sendGameMessage("ゲームが開始されました");
-                    playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 3);
-                    t.teleport();
-                    ct.teleport();
-                    status = 1;
-                    gameTimer();
-                    this.cancel();
-                }
+        if (status == 0) {
+            sendGameMessage("まもなくゲームが開始されます");
             
-            }
-        }.runTaskTimer(Bukkit.getPluginManager().getPlugin("gungame"), 0L, 20L); // 20L = 1 second (20 ticks)
+            new BukkitRunnable() {
+                int countdown = 5;
+
+                @Override
+                public void run() {
+                    if (countdown > 0) {
+                        sendGameMessage(String.valueOf(countdown));
+                        playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
+                        countdown --;
+                    }
+                    else {
+                        sendGameMessage("ゲームが開始されました");
+                        playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 3);
+                        t.teleport();
+                        ct.teleport();
+                        status = 1;
+                        gameTimer();
+                        this.cancel();
+                    }
+                
+                }
+            }.runTaskTimer(Bukkit.getPluginManager().getPlugin("gungame"), 0L, 20L); // 20L = 1 second (20 ticks)
+        }
     }
 
     // if player was killed by weapon
     @EventHandler
     public void onWeaponDamage(WeaponDamageEntityEvent e) {
-        if (status == 1 && inGame((Player) e.getPlayer())) { // when deploying, shoud change from "e.getPlayer()" to "e.getVictim()"
+
+        if (e.getVictim() instanceof Player && status == 1 && inGame((Player) e.getPlayer()) && inGame((Player) e.getVictim())) { // when deploying, shoud change from "e.getPlayer()" to "e.getVictim()"
             Bukkit.getServer().getPluginManager().callEvent(new EntityDamageByEntityEvent(e.getPlayer(), e.getVictim(), EntityDamageEvent.DamageCause.ENTITY_ATTACK, e.getDamage())); 
             org.bukkit.entity.Entity v = e.getVictim();
             if ((((Damageable) v).getHealth() - e.getDamage() <= 0)) {
@@ -124,7 +130,7 @@ public class Bomb implements Listener {
     // if player was killed by melee or vannila item
     @EventHandler
     public void onPlayerDie(PlayerDeathEvent pde) {
-        if (this.status == 1 && inGame(pde.getEntity().getKiller())) { // when deploying, shoud change from "pde.getEntity().getKiller()" to "pde.getEntity()"
+        if (this.status == 1 && inGame(pde.getEntity().getKiller()) && inGame((Player) pde.getEntity())) { // when deploying, shoud change from "pde.getEntity().getKiller()" to "pde.getEntity()"
             Player player = pde.getEntity();
             Player killer = pde.getEntity().getKiller();
             String weapon = killer.getInventory().getItemInMainHand().getType().name();
@@ -246,10 +252,6 @@ public class Bomb implements Listener {
             }
         }
         return false;
-    }
-
-    public Bomb getBomb(String str) {
-        return this;
     }
 
     public void end() {
