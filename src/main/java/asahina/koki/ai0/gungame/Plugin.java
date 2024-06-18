@@ -50,61 +50,44 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
         }  
         else {
           if (args[0].equalsIgnoreCase("bomb")) {
-            Bomb bomb1 = new Bomb("test");
-            Bukkit.getPluginManager().registerEvents(bomb1, this);
-            Player player = (Player)sender;
-            bomb1.addPlayer(player);
-            bomb1.start();
+            if (args[1].equalsIgnoreCase("create")) {
+              Bomb bomb1 = new Bomb(args[2]);
+              Bukkit.getPluginManager().registerEvents(bomb1, this);
+              return true;
+            }
+            if (args[1].equalsIgnoreCase("join")) {
+              Bomb game = Bomb.getBomb(args[2]); // name of game
+              if (game == null) {
+                sender.sendMessage("そのゲームは存在しません");
+                return true;
+              }
+              Player player = Bukkit.getServer().getPlayer(args[3]); // name of player who join
+              game.addPlayer(player, args[4]); // terrorist: "terro", counter terrorist: dont care
+              return true;
+            }
+            else if (args[1].equalsIgnoreCase("leave")) {
+              Bomb game = Bomb.getBomb(args[2]); // name of game
+              if (game == null) {
+                sender.sendMessage("そのゲームは存在しません");
+                return true;
+              }
+              Player player = Bukkit.getServer().getPlayer(args[3]); // name of player who join
+              game.removePlayer(player, args[4]); // terrorist: "terro", counter terrorist: dont care
+              return true;
+            }
+            else if (args[1].equalsIgnoreCase("start")) {
+              Bomb game = Bomb.getBomb(args[2]);
+              if (game == null) {
+                sender.sendMessage("そのゲームは存在しません");
+                return true;
+              }
+              game.start();
+              return true;
+
+            }
             return true;
           }
-          else if (args[0].equalsIgnoreCase("team")) {
-            if (args.length < 2) {
-              sender.sendMessage("team <create/add/remove/bots> <player/num bots>");
-              return true;
-            }
-            else if (args[1].equalsIgnoreCase("make")) {
-              if (args.length < 3) {
-                sender.sendMessage("team make <team>");
-                return true;
-              }
-              else {
-                Player player = (Player)sender;
-                Location location1 = player.getLocation();
-                team1 = new Gteam(args[2], "§c", false, location1);
-                return true;
-              }
-            }
-            else if (args[1].equalsIgnoreCase("check")) {
-              Player player = (Player)sender;
-              team1.checkteam(player);
-              
-            }
 
-              // TODO: retreat info from conf(name of team, allow ff, ...)
-            
-            else if (args[1].equalsIgnoreCase("add")) {
-              sender.sendMessage("add");
-              // TODO: something add impl
-              Player player = Bukkit.getPlayerExact(args[2]);
-              if (args.length < 3 || player == null) {
-                sender.sendMessage("team add <オンラインのプレイヤー>");
-                return true;
-              }
-              else if (player.isOnline()) {
-                cs.giveWeapon(player, "DEAGLE", 1);
-                return true;
-              }
-            }
-            else if (args[1].equalsIgnoreCase("remove")) {
-              sender.sendMessage("remove");
-              // TODO: something remove impl
-              return true;
-            }
-            else {
-              sender.sendMessage("team <add/remove/bots> <player/num bots>");
-              return false;
-            }
-          }
         }
       }
       return true;

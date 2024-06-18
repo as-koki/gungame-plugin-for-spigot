@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.text.html.parser.Entity;
 import org.bukkit.entity.*;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -44,6 +45,7 @@ public class Bomb implements Listener {
     private int status;
     private int bombstatus;
     private int gametime;
+    private List<Player> inGamePlayers;
 
     public Bomb(String name) {
         this.name = name;
@@ -55,14 +57,37 @@ public class Bomb implements Listener {
         this.status = 0; // 0: prepare, 1: ingame 2: end
         this.bombstatus = 0; // 0: nonplanted 1: planted, 2: explored 3: defused
         this.gametime = 115;
+        this.inGamePlayers = new ArrayList<Player>();
+        // if (hasGame(this.name)) {
+        //     return false;
+        // }
         bombs.add(this);
+        // return true;
     }
 
-    public void addPlayer(Player player) { 
-        this.t.addPlayer(player);
-        this.ct.addPlayer(player);
+    public boolean addPlayer(Player player, String team) { 
+        if (team == "t") {
+            this.t.addPlayer(player);
+            this.inGamePlayers.add(player);
+            return true;
+        }
+        else if (team == "ct") {
+            this.ct.addPlayer(player);
+            this.inGamePlayers.add(player);
+            return true;
+        }
+        return false;
+
     }
 
+    public boolean removePlayer(Player player, String team) {
+        if (this.hasPlayer(player)) {
+            this.t.removePlayer(player);
+            this.inGamePlayers.remove(player);
+            return true;
+        }
+        return false;
+    }
     public void gameTimer() {
         new BukkitRunnable() {
             int time = gametime;
@@ -110,16 +135,16 @@ public class Bomb implements Listener {
     // if player was killed by weapon
     @EventHandler
     public void onWeaponDamage(WeaponDamageEntityEvent e) {
-        // inGame(e.getPlayer()) && 
-        if (status == 1) {
-            Bukkit.getServer().getPluginManager().callEvent(new EntityDamageByEntityEvent(e.getPlayer(), e.getVictim(), EntityDamageEvent.DamageCause.ENTITY_ATTACK, e.getDamage()));
+        if (status == 1 && inGame((Player) e.getPlayer())) { // when deploying, shoud change from "e.getPlayer()" to "e.getVictim()"
+            Bukkit.getServer().getPluginManager().callEvent(new EntityDamageByEntityEvent(e.getPlayer(), e.getVictim(), EntityDamageEvent.DamageCause.ENTITY_ATTACK, e.getDamage())); 
             org.bukkit.entity.Entity v = e.getVictim();
             if ((((Damageable) v).getHealth() - e.getDamage() <= 0)) {
                 // Bukkit.getServer().getPluginManager().callEvent(new EntityDeathEvent(e.getPlayer(), null, 0, 0, 0, 0, null)); なぜか動かん
-                String player = e.getVictim().getName();
-                String killer = e.getPlayer().getName();
+                Player player = (Player) e.getVictim();
+                Player killer = e.getPlayer();
                 String weapon = e.getWeaponTitle();
-                sendGameMessage(killer + "[" + weapon + "]" + player);
+                sendGameMessage(killer.getName() + " [" + weapon + "] " + player.getName());
+                playerDied(killer, player);
                 // TODO: Something score fluctuation
             }
         }
@@ -128,16 +153,23 @@ public class Bomb implements Listener {
     // if player was killed by melee or vannila item
     @EventHandler
     public void onPlayerDie(PlayerDeathEvent pde) {
-        if (this.status == 1 && inGame(pde.getEntity())) {
-            String player = pde.getEntity().getName();
-            String killer = pde.getEntity().getKiller().getName();
-            sendGameMessage(killer + " ︻デ═一 " + player);
+        if (this.status == 1 && inGame(pde.getEntity().getKiller())) { // when deploying, shoud change from "pde.getEntity().getKiller()" to "pde.getEntity()"
+            Player player = pde.getEntity();
+            Player killer = pde.getEntity().getKiller();
+            String weapon = killer.getInventory().getItemInMainHand().getType().name();
+            sendGameMessage(killer.getName() + " [" + weapon + "] " + player.getName());
+            playerDied(killer, player);
             // TODO: Something score fluctuation
         }
     }
+
+    public void playerDied(Player killer, Player victim) {
+        victim.setGameMode(GameMode.SPECTATOR);
+        killer.sendMessage("kill + 1");
+    }
     /*
      * 特定アイテムでブロック右クリ→座標取得→サイト内の場合一定時間右クリでSpawning minesで設置
-     * 爆弾設置座標+-5くらいの範囲で一定時間シフト→解除
+     * 爆弾設置座標+-5くらいの範囲で一定時間特定アイテム使用→解除
      */
     @EventHandler
     public void onPlayerUse(PlayerInteractEvent pie) {
@@ -208,6 +240,25 @@ public class Bomb implements Listener {
             }
         }
         return null;
+    }
+
+    public boolean hasPlayer (Player player) {
+        for (Player p : inGamePlayers) {
+            if (p == player) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasGame (String str) {
+        for (Bomb bomb : bombs) {
+            if (bomb.name == str) {
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 
     public void end() {
