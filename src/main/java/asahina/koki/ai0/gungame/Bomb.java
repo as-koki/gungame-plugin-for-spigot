@@ -44,6 +44,7 @@ public class Bomb implements Listener {
     private int bombstatus;
     private int gametime;
     private List<Player> inGamePlayers;
+    private Scores scores = new Scores();
 
     public Bomb() {
     }
@@ -122,7 +123,8 @@ public class Bomb implements Listener {
                 String weapon = e.getWeaponTitle();
                 sendGameMessage(killer.getName() + " [" + weapon + "] " + player.getName());
                 playerDied(killer, player);
-                // TODO: Something score fluctuation
+                scores.getScore(killer).increKill();
+                scores.getScore(player).increDeath();
             }
         }
     }
@@ -143,6 +145,9 @@ public class Bomb implements Listener {
     public void playerDied(Player killer, Player victim) {
         victim.setGameMode(GameMode.SPECTATOR);
         killer.sendMessage("kill + 1");
+        scores.getScore(killer).increKill();
+        scores.getScore(victim).increDeath();
+        printScores();
     }
     /*
      * 特定アイテムでブロック右クリ→座標取得→サイト内の場合一定時間右クリでSpawning minesで設置
@@ -204,11 +209,13 @@ public class Bomb implements Listener {
             if (team.equals("t")) {
                 t.addPlayer(player);
                 inGamePlayers.add(player);
+                scores.addPlayer(player); // add new score to scores array
                 return true;
             }
             else if (team.equals("ct")) {
                 ct.addPlayer(player);
                 inGamePlayers.add(player);
+                scores.addPlayer(player);
                 return true;
             }
             return false;
@@ -252,6 +259,17 @@ public class Bomb implements Listener {
             }
         }
         return false;
+    }
+
+    public void printScores () {
+        for (Player p : inGamePlayers) {
+            Score s = scores.getScore(p);
+            int k = s.getKill();
+            int d = s.getDeath();
+            int a = s.getAssist();
+            int b = s.getBalance();
+            System.out.println("name: " + p.getName() + "\n" + "kill: " + k + "\n" + "death: " + d + "\n" + "assist: " + a + "\n" + "balance: " + b);
+        }
     }
 
     public void end() {

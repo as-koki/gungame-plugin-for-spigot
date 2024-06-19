@@ -36,6 +36,8 @@ public class Gteam {
   public void addPlayer(Player player) {
     this.players.add(player);
     Plugin.board.getTeam(this.name).addEntry(player.getName());
+    // create scores
+
 
   }
 
