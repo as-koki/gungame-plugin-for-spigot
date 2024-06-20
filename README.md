@@ -5,29 +5,16 @@ Crackshot APIを使ったPvPゲーム管理を行うSpigotプラグイン。
 - CrackShotPlusのアプデが止まっているのでそれの代替も実装予定
 ## 機能:
 ### コマンド追加(/gg)
-    - bomb create <name> <gamemode> <ff> <matchpoint> <roundtime> <planttime> <defusetime> <exploretime>
-    - bomb spawnpoint <name> <team> <x> <y> <z>
+    爆破モード:
+    - gg bomb create <name>
+    - gg bomb join <game> <player> <t/ct>
+    - gg bomb leave <game> <player> <t/ct>
+    - gg bomb start <game>
+    - gg bomb list
 
-    - team make <team>
-    - team delete <team>
-    - team add <player> <- ongoing
-    - team remove <player> <- ongoing
-    - team bots <num of bots> <- ongoing
-    - start <name of saved game>
-    - stop <name of saved game>
-    - buy <name of weapons>
-
+    TDM:
+    FFA:
 ### イベント
-    - キル/デス
-        - キル/死亡プレイヤーの表示
-        - スコアボード反映
-    - ゲーム開始
-    - ゲーム終了
-
-### ファイル管理 (config参照)
-    - ファイル保存
-        - ゲームファイル単位
-            - マップ
-            - マップのゲームモード
-            - 両チームのスポーンの座標
-            - kit
+    - バニラアイテム死亡時
+    - CSアイテム死亡時
+        

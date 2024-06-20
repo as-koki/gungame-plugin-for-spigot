@@ -34,6 +34,7 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
     manager = Bukkit.getScoreboardManager();
     board = manager.getNewScoreboard();
     games = new BombGameManager();
+    getServer().getPluginManager().registerEvents(this, this);
   }
 
   public void onDisable()
@@ -41,6 +42,12 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
     LOGGER.info("gungame disabled");
   }
   
+  @EventHandler
+  public void onDeath(PlayerDeathEvent e) {
+      final Player p = e.getEntity();
+      Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> p.spigot().respawn(), 2);
+  }
+
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
       if (command.getName().equalsIgnoreCase("gg")) { //親コマンドの判定
@@ -61,7 +68,21 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
                 return true;
               }
             }
-            if (args[1].equalsIgnoreCase("join")) { 
+            else if (args[1].equalsIgnoreCase("setspawn")) {
+              Player player = (Player)sender;
+              games.getBomb(args[2]).getTeam(args[3]).setSpawn(player.getLocation());
+              sender.sendMessage("スポーンポイントの設定をしました");
+              return true;
+            }
+            else if (args[1].equalsIgnoreCase("setbomba")) {
+              Player player = (Player)sender;
+              games.getBomb(args[2]).setBombPointA(player.getLocation());
+              sender.sendMessage("BombAの設置地点を設定しました");
+            }
+            else if (args[1].equalsIgnoreCase("setbombb")) {
+                          
+            }
+            else if (args[1].equalsIgnoreCase("join")) { 
               if (!games.hasGame(args[2])) {// name of game
                 sender.sendMessage("そのゲームは存在しません");
                 return true;

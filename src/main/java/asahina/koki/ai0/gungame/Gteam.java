@@ -19,10 +19,9 @@ public class Gteam {
     public static List<Team> teams = new ArrayList<Team>(); 
     // Objective objective = Plugin.board.registerNewObjective(name, "air", "aaa", RenderType.INTEGER);
 
-  public Gteam(String name, String color, boolean ff, Location spawn) {
+  public Gteam(String name, String color, boolean ff) {
     this.name = name;
     this.color = color;
-    this.spawn = spawn;
     this.players = new ArrayList<Player>();
     Team team = null;
     if (Plugin.board.getTeam(name) == null) {
@@ -33,11 +32,16 @@ public class Gteam {
     team.setPrefix("[" + name + "]");
   }
 
+  public void setSpawn(Location A) {
+    this.spawn = A; 
+    for (Player p : this.players) {
+      p.setBedSpawnLocation(A, true);
+    }
+  }
+
   public void addPlayer(Player player) {
     this.players.add(player);
     Plugin.board.getTeam(this.name).addEntry(player.getName());
-    // create scores
-
 
   }
 
