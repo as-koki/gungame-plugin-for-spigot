@@ -3,20 +3,24 @@ package asahina.koki.ai0.gungame;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+// import org.bukkit.plugin.Plugin;
 
 public class BombGameManager {
     public ArrayList<Bomb> games = new ArrayList<Bomb>();
-    public BombGameManager() {
+    public Plugin plugin;
+    public BombGameManager(Plugin plugin) {
+        this.plugin = plugin;
     }
 
-    public boolean createGame (String name) {
-        if (hasGame(name)) {
-            Bukkit.getLogger().warning("Game with name " + name + " already exists.");
+    public boolean createGame (Plugin plugin, gameInfo info) {
+        if (hasGame(info.name)) {
+            Bukkit.getLogger().warning("Game with name " + info.name + " already exists.");
+
             return false;
         }
-        Bomb bomb = new Bomb(name);
+        Bomb bomb = new Bomb(plugin, info);
         games.add(bomb);
         return true;
     }

@@ -8,6 +8,8 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.RenderType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -90,6 +92,12 @@ public class Gteam {
         }
     }
     return null;
+  }
+
+  public void setGameMode(org.bukkit.GameMode mode) {
+    for (Player player : players) {
+      player.setGameMode(mode);
+    }
   }
 
   public void teleport() {

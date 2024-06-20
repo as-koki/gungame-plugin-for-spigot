@@ -1,28 +1,28 @@
 gamelist:
-  Dust2:
+  test:
     matchpoint: 3
     ff: 'false'
-    roundtime: 300
+    roundtime: 30
     planttime: 10
     defusetime: 10
     exploretime: 60
-
-    spawnpointA: # xyz
-      - 0
-      - 0
-      - 0
-    spawnpointB:
-      - 1
-      - 1
-      - 1
+    world: test
+    t: # xyz
+      - 8
+      - -60
+      - 25
+    ct:
+      - 15
+      - -60
+      - 25
     bombsiteA:
-      - 0
-      - 0
-      - 0
+      - -1
+      - -61
+      - 24
     bombsiteB:
-      - 1
-      - 1
-      - 1
+      - 24
+      - -61
+      - 24
 
   Inferno:
   Mirage:

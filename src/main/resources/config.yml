@@ -1,0 +1,29 @@
+test:
+  matchpoint: 3
+  ff: 'false'
+  roundtime: 300
+  planttime: 10
+  defusetime: 10
+  exploretime: 60
+  world: test
+  t: # xyz
+    - 8
+    - -60
+    - 25
+  ct:
+    - 15
+    - -60
+    - 25
+  bombsiteA:
+    - -1
+    - -61
+    - 24
+  bombsiteB:
+    - 24
+    - -61
+    - 24
+
+Inferno:
+Mirage:
+Overpass:
+Vertigo:

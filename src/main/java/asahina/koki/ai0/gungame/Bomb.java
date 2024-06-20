@@ -29,10 +29,8 @@ import com.shampaggon.crackshot.CSUtility;
 import com.shampaggon.crackshot.events.WeaponDamageEntityEvent;
 
 public class Bomb implements Listener {
-    Location location_t = new Location(Bukkit.getWorld("world"), 1, 1, 1, 0, 0); // tmp
-    Location location_ct = new Location(Bukkit.getWorld("world"), 1, 1, 1, 0, 0); // tmp
-    Location bombA = new Location(Bukkit.getWorld("world"), 1, 1, 1, 0, 0);
-    Location bombB = new Location(Bukkit.getWorld("world"), 1, 1, 1, 0, 0);
+    private Location bombA = new Location(Bukkit.getWorld("world"), 1, 1, 1, 0, 0);
+    private Location bombB = new Location(Bukkit.getWorld("world"), 1, 1, 1, 0, 0);
 
     private Gteam t;
     private Gteam ct;
@@ -46,24 +44,63 @@ public class Bomb implements Listener {
     private int gametime;
     private List<Player> inGamePlayers;
     private Scores scores = new Scores();
-    private int matches;
+    private int maxgamecount;
+    private int gamecount;
+    private int tScore;
+    private int ctScore;
+    private Plugin plugin;
 
-    public Bomb() {
+    public Bomb(Plugin plugin, gameInfo info) {
+        this.name = info.name;
+        this.maxgamecount = info.matchpoint;
+        this.ff = info.ff;
+        this.gametime = info.roundtime;
+        this.planttime = info.planttime;
+        this.defusetime = info.defusetime;
+        this.exploretime = info.exploretime;
+        this.t = new Gteam(info.name +"テロリスト", "§c", ff);
+        this.ct = new Gteam(info.name +"カウンターテロリスト", "§1", ff);
+        this.t.setSpawn(info.t);
+        this.ct.setSpawn(info.ct);
+        this.bombA = info.A;
+        this.bombB = info.B;
+        this.inGamePlayers = new ArrayList<>();
+        this.plugin = plugin;
     }
 
-    public Bomb(String name) {
-        this.name = name;
-        this.ff = false;
-        this.planttime = 3; // tmp
-        this.defusetime = 10; // tmp
-        this.exploretime = 40; // tmp
+    public void resetGame() {
         this.status = 0; // 0: prepare, 1: ingame 2: end
         this.bombstatus = 0; // 0: nonplanted 1: planted, 2: explored 3: defused
-        this.gametime = 115;
-        this.matches = 13;
-        this.inGamePlayers = new ArrayList<>();
-        this.t = new Gteam(name +"テロリスト", "§c", false);
-        this.ct = new Gteam(name +"カウンターテロリスト", "§1", false);
+        this.gamecount++;
+        if (gamecount < maxgamecount) {
+            sendGameMessage("次のラウンドが開始されます");
+            new BukkitRunnable() {
+                int time = 10;
+                @Override
+                public void run() {
+                    sendGameMessage(String.valueOf(time));
+                    if (time > 0) {
+                        time--;
+                    }
+                    else {
+                        startRound();
+                        this.cancel();
+                    }
+                }
+            }.runTaskTimer(Bukkit.getPluginManager().getPlugin("gungame"), 0L, 20L); // 20L = 1 second (20 ticks)
+        }
+
+        else {
+            sendGameMessage("ゲームが終了しました");
+            if (tScore > ctScore) {
+                sendGameMessage("このゲームはテロリストの勝利");
+                // reward
+            }
+            else if (tScore < ctScore) {
+                sendGameMessage("このゲームはカウンターテロリストの勝利");
+                // reward
+            }
+        }
     }
 
     public void gameTimer() {
@@ -77,39 +114,46 @@ public class Bomb implements Listener {
                 else {
                     sendGameMessage("カウンターテロリストの勝利");
                     status = 2;
+                    resetGame();
                     this.cancel();
                 }
             }
         }.runTaskTimer(Bukkit.getPluginManager().getPlugin("gungame"), 0L, 20L); // 20L = 1 second (20 ticks)
     }
 
-    public void start() {
+    public void startGame() {
         if (status == 0) {
             sendGameMessage("まもなくゲームが開始されます");
-            
-            new BukkitRunnable() {
-                int countdown = 5;
-
-                @Override
-                public void run() {
-                    if (countdown > 0) {
-                        sendGameMessage(String.valueOf(countdown));
-                        playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
-                        countdown --;
-                    }
-                    else {
-                        sendGameMessage("ゲームが開始されました");
-                        playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 3);
-                        t.teleport();
-                        ct.teleport();
-                        status = 1;
-                        gameTimer();
-                        this.cancel();
-                    }
-                
-                }
-            }.runTaskTimer(Bukkit.getPluginManager().getPlugin("gungame"), 0L, 20L); // 20L = 1 second (20 ticks)
+            startRound();
+            return;
         }
+    }
+
+    public void startRound() {
+        new BukkitRunnable() {
+            int countdown = 5;
+
+            @Override
+            public void run() {
+                if (countdown > 0) {
+                    sendGameMessage(String.valueOf(countdown));
+                    playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
+                    countdown --;
+                }
+                else {
+                    sendGameMessage(String.valueOf(gamecount+1) + "ラウンド目が開始されました");
+                    playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 3);
+                    t.setGameMode(GameMode.SURVIVAL);
+                    ct.setGameMode(GameMode.SURVIVAL);
+                    t.teleport();
+                    ct.teleport();
+                    status = 1;
+                    gameTimer();
+                    this.cancel();
+                }
+            
+            }
+        }.runTaskTimer(Bukkit.getPluginManager().getPlugin("gungame"), 0L, 20L); // 20L = 1 second (20 ticks)
     }
 
     // if player was killed by weapon
@@ -149,7 +193,7 @@ public class Bomb implements Listener {
         killer.sendMessage("kill + 1");
         scores.getScore(killer).increKill();
         scores.getScore(victim).increDeath();
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getPlugin(null), () -> victim.spigot().respawn(), 2);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> victim.spigot().respawn(), 2);
         printScores();
     }
     /*
@@ -158,14 +202,17 @@ public class Bomb implements Listener {
      */
     @EventHandler
     public void onPlayerUse(PlayerInteractEvent pie) {
-        Location location = pie.getClickedBlock().getLocation();
-        if (this.status == 1 && this.bombstatus == 0 && t.hasPlayer(pie.getPlayer())) {
-            if (pie.getAction() == Action.RIGHT_CLICK_BLOCK && inRange(location)) {
-                plantBomb(pie.getPlayer());
+        if (pie.getAction() == Action.RIGHT_CLICK_BLOCK && pie.getClickedBlock().getType() != null) {
+            Location location = pie.getClickedBlock().getLocation();
+            if (inRange(location)) {
+                if (this.status == 1 && this.bombstatus == 0 && t.hasPlayer(pie.getPlayer())) {
+                        plantBomb(pie.getPlayer());
+                }
+                
+                else if (status==1 && bombstatus==1 && ct.hasPlayer(pie.getPlayer()) && inRange(location)) {
+                    defuseBomb(pie.getPlayer());
+                }
             }
-        } 
-        else if (status==1 && bombstatus==1 && ct.hasPlayer(pie.getPlayer()) && inRange(location)) {
-            defuseBomb(pie.getPlayer());
         }
         
     }
@@ -208,12 +255,14 @@ public class Bomb implements Listener {
                     if (bombstatus==3) {
                         sendGameMessage("カウンターテロリストの勝利");
                         status = 2;
+                        resetGame();
                         this.cancel();
                     }
                 if (countdown == 10) {ct.sendTeamMessage("残り" + String.valueOf(countdown) + "秒");}
                 }
                 else {
                     sendGameMessage("テロリストの勝利");
+                    resetGame();
                     this.cancel();
                 }
             }
@@ -324,7 +373,7 @@ public class Bomb implements Listener {
         }
     }
 
-    public void end() {
+    public void endGame() {
 
     }
 
