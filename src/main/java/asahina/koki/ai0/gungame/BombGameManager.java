@@ -15,8 +15,8 @@ public class BombGameManager {
     }
 
     public boolean createGame (Plugin plugin, gameInfo info) {
-        if (hasGame(info.name)) {
-            Bukkit.getLogger().warning("Game with name " + info.name + " already exists.");
+        if (hasGame(info.getName())) {
+            Bukkit.getLogger().warning("Game with name " + info.getName() + " already exists.");
 
             return false;
         }

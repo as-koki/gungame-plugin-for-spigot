@@ -100,11 +100,9 @@ public class Gteam {
     }
   }
 
-  public void teleport() {
+  public void teleportTeam(Location location) {
     for (Player player : this.players) {
-      player.getInventory().clear();
-      player.setExp(0.0F);
-      player.teleport(this.spawn);
+      player.teleport(location);
     }
   }
 }

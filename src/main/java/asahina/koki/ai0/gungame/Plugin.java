@@ -48,7 +48,7 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
     info = new Reader(this).readGameSetting(name);
 
     games.createGame(this, info);
-    this.getServer().getPluginManager().registerEvents(games.getBomb(info.name), this);
+    this.getServer().getPluginManager().registerEvents(games.getBomb(info.getName()), this);
   }
 
   public void onDisable()
@@ -84,12 +84,12 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
             }
             else if (args[1].equalsIgnoreCase("setbomba")) {
               Player player = (Player)sender;
-              games.getBomb(args[2]).setBombPointA(player.getLocation());
+              info.setA(player.getLocation());
               sender.sendMessage("BombAの設置地点を設定しました");
             }
             else if (args[1].equalsIgnoreCase("setbombb")) {
               Player player = (Player)sender;
-              games.getBomb(args[2]).setBombPointB(player.getLocation());
+              info.setB(player.getLocation());
               sender.sendMessage("BombBの設置地点を設定しました");       
             }
             else if (args[1].equalsIgnoreCase("join")) { 
