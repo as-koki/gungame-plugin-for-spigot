@@ -71,9 +71,26 @@ public class Reader {
 
         List<Double> B_xyz = config.getDoubleList(info.getName() + ".bombsiteB");
         info.setB(new Location(Bukkit.getWorld(info.getName()), B_xyz.get(0), B_xyz.get(1), B_xyz.get(2)));
-
+        printGameInfo(info);
         return info;
   }
+
+
+  private void printGameInfo(gameInfo info) {
+    logger.info("Game Name: " + info.getName());
+    logger.info("Match Point: " + info.getMaxGameCount());
+    logger.info("Friendly Fire: " + info.getFf());
+    logger.info("Round Time: " + info.getRoundTime());
+    logger.info("Plant Time: " + info.getPlantTime());
+    logger.info("Defuse Time: " + info.getDefuseTime());
+    logger.info("Explore Time: " + info.getExploreTime());
+    logger.info("T Spawn: " + info.getTspawn());
+    logger.info("CT Spawn: " + info.getCTspawn());
+    logger.info("Bombsite A: " + info.getA());
+    logger.info("Bombsite B: " + info.getB());
+    logger.info("T Team: " + info.getT().getName());
+    logger.info("CT Team: " + info.getCT().getName());
+}
 }
 
 class gameInfo {
@@ -97,6 +114,7 @@ class gameInfo {
     private Scores scores = new Scores();
     private int ctScore;
     private List<Player> inGamePlayers = new ArrayList<>();
+    private String bombSite = null;
 
     public List<Player> getInGamePlayers() {
         return this.inGamePlayers;
@@ -105,6 +123,14 @@ class gameInfo {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getBombSite() {
+        return this.bombSite;
+    }
+
+    public void setBombSite(String site) {
+        this.bombSite = site;
+    } 
 
     public String getName() {
         return this.name;
@@ -150,7 +176,7 @@ class gameInfo {
         this.tScore = score;
     }
     public int getTScore() {
-        return this.ctScore;
+        return this.tScore;
     }
 
     public void setCTScore(int score) {

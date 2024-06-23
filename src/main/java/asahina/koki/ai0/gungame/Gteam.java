@@ -34,6 +34,16 @@ public class Gteam {
     team.setPrefix("[" + name + "]");
   }
 
+  public String getName() {
+    return this.name;
+  }
+
+  public void setWalkSpeed(float value) {
+    for(Player p : players) {
+      p.setWalkSpeed(value);
+    }
+  }
+
   public void setSpawn(Location A) {
     this.spawn = A; 
     for (Player p : this.players) {

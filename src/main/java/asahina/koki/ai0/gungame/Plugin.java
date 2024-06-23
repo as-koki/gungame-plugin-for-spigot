@@ -33,7 +33,8 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
   public static Scoreboard board;
   CSUtility cs = new CSUtility();
   BombGameManager games;
-  gameInfo info;
+  gameInfo test;
+  gameInfo dust2;
   Reader reader;
   public void onEnable()
   {
@@ -44,11 +45,17 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
     getServer().getPluginManager().registerEvents(this, this);
     saveDefaultConfig();
 
-    String name = "test";
-    info = new Reader(this).readGameSetting(name);
+    // String name = "test";
+    // test = new Reader(this).readGameSetting(name);
 
-    games.createGame(this, info);
-    this.getServer().getPluginManager().registerEvents(games.getBomb(info.getName()), this);
+    // games.createGame(this, test);
+    // this.getServer().getPluginManager().registerEvents(games.getBomb(test.getName()), this);
+
+    String name1 = "dust2";
+    dust2 = new Reader(this).readGameSetting(name1);
+
+    games.createGame(this, dust2);
+    this.getServer().getPluginManager().registerEvents(games.getBomb(dust2.getName()), this);
   }
 
   public void onDisable()
@@ -73,7 +80,7 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
               // }
               // else {
               //   sender.sendMessage("爆破ゲームの作成に失敗しました");
-              //   return true;
+                return true;
               // }
             }
             else if (args[1].equalsIgnoreCase("setspawn")) {
@@ -84,12 +91,12 @@ public class Plugin extends JavaPlugin implements Listener, CommandExecutor
             }
             else if (args[1].equalsIgnoreCase("setbomba")) {
               Player player = (Player)sender;
-              info.setA(player.getLocation());
+              // info.setA(player.getLocation());
               sender.sendMessage("BombAの設置地点を設定しました");
             }
             else if (args[1].equalsIgnoreCase("setbombb")) {
               Player player = (Player)sender;
-              info.setB(player.getLocation());
+              // info.setB(player.getLocation());
               sender.sendMessage("BombBの設置地点を設定しました");       
             }
             else if (args[1].equalsIgnoreCase("join")) { 

@@ -1,10 +1,35 @@
-test:
+dust2:
   matchpoint: 3
-  ff: 'false'
+  ff: false
   roundtime: 300
   planttime: 10
   defusetime: 10
   exploretime: 60
+  world: dust2
+  t: # xyz
+    - -138
+    - 17
+    - -89
+  ct:
+    - -197
+    - -11
+    - -110
+  bombsiteA:
+    - -200
+    - 15
+    - -124
+  bombsiteB:
+    - -207
+    - 14
+    - -76
+
+test:
+  matchpoint: 3
+  ff: false
+  roundtime: 300
+  planttime: 10
+  defusetime: 10
+  exploretime: 10
   world: test
   t: # xyz
     - 8
