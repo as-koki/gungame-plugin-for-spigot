@@ -87,34 +87,16 @@ class Score {
         return this.balance;
     }
 
-    public void increKill() {
-        this.kill++;
+    public void setKill(int val) {
+        this.kill = val;
     }
     
-    public void decreKill() {
-        if (this.kill > 0) {
-            this.kill--;
-        }
+    public void setDeath(int val) {
+        this.death = val;
     }
-    
-    public void increDeath() {
-        this.death++;
-    }
-    
-    public void decreDeath() {
-        if (this.death > 0) {
-            this.death--;
-        }
-    }
-    
-    public void increAssist() {
-        this.assist++;
-    }
-    
-    public void decreAssist() {
-        if (this.assist > 0) {
-            this.assist--;
-        }
+
+    public void setAssist(int val) {
+        this.assist = val;
     }
     
     public void updateBalance(int amount) {

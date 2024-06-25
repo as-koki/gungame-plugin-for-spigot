@@ -43,7 +43,7 @@ public class Bomb implements Listener {
         info.setBombStatus(0); // 0: nonplanted 1: planted, 2: explored 3: defused
         info.setGameCount(info.getGameCount()+1);
 
-        if (info.getGameCount() < info.getMaxGameCount()) {
+        if (info.getGameCount() < info.getMaxGameCount() && info.getGameStatus()==1) {
             sendGameMessage("次のラウンドが開始されます");
             new BukkitRunnable() {
                 int time = 10;
@@ -62,7 +62,7 @@ public class Bomb implements Listener {
         }
 
         else {
-            // endGame();
+            endGame();
             sendGameMessage("ゲームが終了しました");
             if (info.getTScore() > info.getCTScore()) {
                 sendGameMessage("このゲームはテロリストの勝利");
@@ -102,7 +102,9 @@ public class Bomb implements Listener {
     public void startGame() {
         if (info.getStatus() == 0) {
             sendGameMessage("まもなくゲームが開始されます");
+            sendGameTitle("§1まもなくゲームが開始されます", "§k");
             startRound();
+            info.setGameStatus(1);
             return;
         }
     }
@@ -151,8 +153,6 @@ public class Bomb implements Listener {
                 String weapon = e.getWeaponTitle();
                 sendGameMessage(killer.getName() + " [" + weapon + "] " + player.getName());
                 playerDied(killer, player);
-                info.getScores().getScore(killer).increKill();
-                info.getScores().getScore(player).increDeath();
             }
         }
     }
@@ -166,15 +166,16 @@ public class Bomb implements Listener {
             String weapon = killer.getInventory().getItemInMainHand().getType().name();
             sendGameMessage(killer.getName() + " [" + weapon + "] " + player.getName());
             playerDied(killer, player);
-            // TODO: Something score fluctuation
         }
     }
 
     public void playerDied(Player killer, Player victim) {
         victim.setGameMode(GameMode.SPECTATOR);
         killer.sendMessage("kill + 1");
-        info.getScores().getScore(killer).increKill();
-        info.getScores().getScore(victim).increDeath();
+        int killerKills = info.getScores().getScore(killer).getKill();
+        int victimDeaths = info.getScores().getScore(victim).getDeath();
+        info.getScores().getScore(killer).setKill(killerKills+1);
+        info.getScores().getScore(victim).setDeath(victimDeaths+1);
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> victim.spigot().respawn(), 2);
         printScores();
     }
@@ -187,11 +188,11 @@ public class Bomb implements Listener {
         if (pie.getAction() == Action.RIGHT_CLICK_BLOCK && pie.getClickedBlock().getType() != null) {
             Location location = pie.getClickedBlock().getLocation();
             if (isPlant(location)!=null) {
-                if (info.getStatus() == 1 && info.getBombStatus() == 0 && info.getT().hasPlayer(pie.getPlayer())) {
+                if (info.getStatus() == 1 && info.getBombStatus() == 0 && info.getT().hasPlayer(pie.getPlayer()) && pie.getPlayer().getInventory().getItemInMainHand().getType() == Material.IRON_AXE) {
                     plantBomb(pie.getPlayer(), isPlant(location));
                 }
                 
-                else if (info.getStatus()==1 && info.getBombStatus()==1 && info.getCT().hasPlayer(pie.getPlayer()) && isPlant(location) == info.getBombSite()) {
+                else if (info.getStatus()==1 && info.getBombStatus()==1 && info.getCT().hasPlayer(pie.getPlayer()) && isPlant(location) == info.getBombSite() && pie.getPlayer().getInventory().getItemInMainHand().getType() == Material.IRON_HOE) {
                     defuseBomb(pie.getPlayer());
                 }
             }
@@ -199,7 +200,7 @@ public class Bomb implements Listener {
         
     }
 
-    public String isPlant(Location location) {
+    public Location isPlant(Location location) {
         final double range = 2.0;
         boolean inRangeA = 
             location.getX() >= info.getA().getX() - range && location.getX() <= info.getA().getX() + range &&
@@ -209,13 +210,12 @@ public class Bomb implements Listener {
             location.getX() >= info.getB().getX() - range && location.getX() <= info.getB().getX() + range &&
             location.getY() >= info.getB().getY() - range && location.getY() <= info.getB().getY() + range &&
             location.getZ() >= info.getB().getZ() - range && location.getZ() <= info.getB().getZ() + range;
-        if (inRangeA) {return "A";}
-        else if (inRangeB) {return "B";}
+        if (inRangeA) {return info.getA();}
+        else if (inRangeB) {return info.getB();}
         return null;
     }
 
-    public void plantBomb(Player planter, String site) {
-        if (planter.getInventory().getItemInMainHand().getType() == Material.IRON_AXE) {
+    public void plantBomb(Player planter, Location site) {
             String name = planter.getPlayer().getName();
             info.setBombStatus(1);
             info.setBombSite(site);
@@ -224,9 +224,6 @@ public class Bomb implements Listener {
             info.getT().sendTeamMessage("設置完了");
             bombCount();
 
-
-        }
-
     }
 
     public void bombCount() {
@@ -234,8 +231,8 @@ public class Bomb implements Listener {
             int countdown = info.getExploreTime();
             @Override
             public void run() {
-                countdown--;
                 if (countdown > 0) {
+                    countdown--;
                     if (info.getBombStatus()==3) {
                         sendGameMessage("カウンターテロリストの勝利");
                         info.setCTScore(info.getCTScore()+1);
@@ -259,10 +256,8 @@ public class Bomb implements Listener {
     }
 
     public void defuseBomb(Player defuser) {
-        if (defuser.getInventory().getItemInMainHand().getType() == Material.IRON_HOE) {
             info.setBombStatus(3);
             info.setBombSite(null);
-        }
     }
 
     public void playSound(Sound sound, int volume, int pitch) {
@@ -277,6 +272,12 @@ public class Bomb implements Listener {
     public void sendGameMessage(String str) {
         info.getT().sendTeamMessage(info.getT().getColor() + str);
         info.getCT().sendTeamMessage(info.getCT().getColor() + str);
+    }
+
+    public void sendGameTitle(String main, String sub) {
+        for(Player player : info.getInGamePlayers()) {
+            player.sendTitle(main, sub, 10, 70,10);
+        }
     }
 
     public boolean addPlayer(Player player, String team) { 
@@ -316,30 +317,20 @@ public class Bomb implements Listener {
     }
 
     public Gteam getTeam(String str) {
-        if (str.equals("t")) {
-          return info.getT();
-        }
-        else {
-            return info.getCT();
-        }
-      }
+        return str.equals("t") ? info.getT() : info.getCT();
+    }
 
     public String getName() {
         return info.getName();
     }
 
     public boolean inGame(Player player) {
-        if( info.getCT().hasPlayer(player) || info.getT().hasPlayer(player) ) {
-            return true;
-        }
-        return false;
+        return info.getCT().hasPlayer(player) || info.getT().hasPlayer(player) ? true : false;
     }
 
     public boolean hasPlayer (Player player) {
         for (Player p : info.getInGamePlayers()) {
-            if (p == player) {
-                return true;
-            }
+            if (p == player) { return true; }
         }
         return false;
     }
@@ -359,13 +350,17 @@ public class Bomb implements Listener {
         info.setStatus(0); // 0: prepare, 1: ingame 2: end
         info.setBombStatus(0); // 0: nonplanted 1: planted, 2: explored 3: defused
         info.setGameCount(0);
+        info.setGameStatus(2);
+        for(Player p : info.getInGamePlayers()) {
+            Score s =info.getScores().getScore(p);
+            s.resetScore();
+        }
     }
 
-    public void explode(String site) {
+    public void explode(Location site) {
         World w = info.getA().getWorld();
         Location location;
-        if (site.equals("A")) {location = info.getA();}
-        else  {location = info.getB();}
+        location = site == info.getA() ? info.getA() : info.getB();
         new BukkitRunnable() {
             int halfsec = 5;
             @Override

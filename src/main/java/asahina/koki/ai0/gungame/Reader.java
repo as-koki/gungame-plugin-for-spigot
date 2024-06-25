@@ -107,6 +107,7 @@ class gameInfo {
     private Location A;//
     private Location B;//
     private int status;//
+    private int gameStatus;
     private int gameCount;//
     private int maxGameCount;
     private int bombStatus;
@@ -114,7 +115,7 @@ class gameInfo {
     private Scores scores = new Scores();
     private int ctScore;
     private List<Player> inGamePlayers = new ArrayList<>();
-    private String bombSite = null;
+    private Location bombSite = null;
 
     public List<Player> getInGamePlayers() {
         return this.inGamePlayers;
@@ -124,11 +125,11 @@ class gameInfo {
         this.name = name;
     }
 
-    public String getBombSite() {
+    public Location getBombSite() {
         return this.bombSite;
     }
 
-    public void setBombSite(String site) {
+    public void setBombSite(Location site) {
         this.bombSite = site;
     } 
 
@@ -265,6 +266,14 @@ class gameInfo {
 
     public int getStatus() {
         return this.status;
+    }
+
+    public void setGameStatus(int status) {
+        this.gameStatus = status;
+    }
+
+    public int getGameStatus() {
+        return this.gameStatus;
     }
 
     public int getGameCount() {
