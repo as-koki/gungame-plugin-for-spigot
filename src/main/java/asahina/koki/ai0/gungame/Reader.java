@@ -107,7 +107,7 @@ class gameInfo {
     private Location A;//
     private Location B;//
     private int status;//
-    private int gameStatus;
+            private int gameStatus;
     private int gameCount;//
     private int maxGameCount;
     private int bombStatus;

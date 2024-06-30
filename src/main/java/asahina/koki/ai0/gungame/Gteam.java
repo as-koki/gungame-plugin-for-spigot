@@ -18,7 +18,9 @@ public class Gteam {
     private String color;
     private Location spawn;
     private List<Player> players;
-    public static List<Team> teams = new ArrayList<Team>(); 
+    private static List<Team> teams = new ArrayList<Team>(); 
+    private List<Player> alivePlayer = new ArrayList<Player>();
+    private List<Player> deadPlayer = new ArrayList<Player>();
     // Objective objective = Plugin.board.registerNewObjective(name, "air", "aaa", RenderType.INTEGER);
 
   public Gteam(String name, String color, boolean ff) {
@@ -32,6 +34,29 @@ public class Gteam {
     }
     team.setAllowFriendlyFire(ff);
     team.setPrefix("[" + name + "]");
+  }
+
+  public void addAlivePlayer(Player player) {
+    alivePlayer.add(player);
+  }
+
+  public void removeAlivePlayer(Player player) {
+    alivePlayer.remove(player);
+  }
+
+  public boolean isAlive(Player player) {
+    for(Player p : alivePlayer) {
+      if(player == p) {return true;}
+    }
+    return false;
+  }
+
+  public int countAlive() {
+    return alivePlayer.size();
+  }
+
+  public void addDeadPlayer(Player player) {
+    deadPlayer.add(player);
   }
 
   public String getName() {
